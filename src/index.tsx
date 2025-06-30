@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -30,26 +29,23 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://cra.link/PWA
 serviceWorkerRegistration.register({
   onUpdate: registration => {
     const waitingServiceWorker = registration.waiting;
-
     if (waitingServiceWorker) {
-      const userResponse = window.confirm(
-        'A new version of the app is available. Reload to get the latest updates?'
-      );
-      if (userResponse) {
-        waitingServiceWorker.addEventListener('statechange', event => {
-            const target = event.target as ServiceWorker;
-            if (target.state === 'activated') {
-                window.location.reload();
-            }
-        });
+      // We use a simple confirm dialog here. A custom toast is also a good option.
+      const userConfirmation = window.confirm("A new version is available. Reload to update?");
+      if (userConfirmation) {
+        // Post a message to the waiting service worker to activate it.
         waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+        // After the new worker is activated, reload the page.
+        waitingServiceWorker.addEventListener('statechange', event => {
+          const target = event.target as ServiceWorker;
+          if (target.state === 'activated') {
+            window.location.reload();
+          }
+        });
       }
     }
-  }
+  },
 });
