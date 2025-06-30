@@ -34,7 +34,7 @@ const HeroSection: React.FC<{ settings: StoreSettings, onExploreClick: () => voi
         >
           {settings.heroSubtitle}
         </p>
-        <Button size="lg" variant="accent" className="mt-8">
+        <Button size="lg" variant="accent" className="mt-8" onClick={onExploreClick}>
           Explore Now
         </Button>
       </div>
