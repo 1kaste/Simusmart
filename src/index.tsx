@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -32,4 +33,23 @@ root.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA
-serviceWorkerRegistration.register();
+serviceWorkerRegistration.register({
+  onUpdate: registration => {
+    const waitingServiceWorker = registration.waiting;
+
+    if (waitingServiceWorker) {
+      const userResponse = window.confirm(
+        'A new version of the app is available. Reload to get the latest updates?'
+      );
+      if (userResponse) {
+        waitingServiceWorker.addEventListener('statechange', event => {
+            const target = event.target as ServiceWorker;
+            if (target.state === 'activated') {
+                window.location.reload();
+            }
+        });
+        waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+      }
+    }
+  }
+});
