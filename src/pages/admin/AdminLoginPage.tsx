@@ -39,8 +39,12 @@ const AdminLoginPage: React.FC = () => {
         <form onSubmit={handleLogin}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Icons.Store className="h-6 w-6 text-primary-dark dark:text-white"/> 
-              {settings.shopName} Admin
+                {settings.logoUrl ? (
+                    <img src={settings.logoUrl} alt={`${settings.shopName} logo`} className="h-7 w-auto" />
+                ) : (
+                    <Icons.Store className="h-6 w-6 text-primary-dark dark:text-white"/> 
+                )}
+              <span>{settings.shopName} Admin</span>
             </CardTitle>
             <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
           </CardHeader>

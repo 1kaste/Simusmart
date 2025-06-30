@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Button from '../../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Icons } from '../../components/icons';
@@ -60,6 +61,20 @@ const DashboardPage: React.FC = () => {
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const { products, categories, orders, addProducts } = useData();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleAIRefresh = async () => {
     setIsModalOpen(true);
@@ -147,13 +162,16 @@ const DashboardPage: React.FC = () => {
           <CardHeader>
             <CardTitle>AI-Powered Insights</CardTitle>
             <CardDescription>
-              Use AI to optimize your product listings and keep your store fresh.
+              {isOnline 
+                ? "Use AI to optimize your product listings and keep your store fresh."
+                : "AI features are disabled while you're offline."
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
               <p className="text-gray-600 dark:text-gray-300">Get new product suggestions for the "Latest Arrivals" section.</p>
-              <Button onClick={handleAIRefresh} disabled={isLoading}>
+              <Button onClick={handleAIRefresh} disabled={isLoading || !isOnline} title={!isOnline ? 'This feature requires an internet connection' : ''}>
                 {isLoading ? <Icons.RefreshCcw className="mr-2 h-4 w-4 animate-spin" /> : <Icons.RefreshCcw className="mr-2 h-4 w-4" />}
                 {isLoading ? 'Generating...' : 'Refresh with AI'}
               </Button>
