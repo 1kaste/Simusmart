@@ -1,11 +1,12 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../src/contexts/CartContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useData } from '../src/contexts/DataContext';
-import { Order, PaymentMethod } from '../data/mock-data';
+import { Order, PaymentMethod } from '../src/data/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
 import { useAuth } from '../src/contexts/AuthContext';
 import { Icons } from '../components/icons';
