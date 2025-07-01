@@ -1,9 +1,14 @@
 
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
-import { Product } from '../data/mock-data';
-import { useData } from '../contexts/DataContext';
+import { Product } from '../src/data/mock-data';
+import { useData } from '../src/contexts/DataContext';
 import ProductCard from '../components/ProductCard';
 import { Icons } from '../components/icons';
 
@@ -15,20 +20,6 @@ const SearchResultsPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [foundProducts, setFoundProducts] = useState<Product[]>([]);
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-    useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
 
     useEffect(() => {
         const performSearch = async () => {
@@ -37,12 +28,6 @@ const SearchResultsPage: React.FC = () => {
             setIsLoading(true);
             setError(null);
             setFoundProducts([]);
-            
-            if (!isOnline) {
-                setError("You are offline. Please connect to the internet to use search.");
-                setIsLoading(false);
-                return;
-            }
 
             if (!process.env.API_KEY) {
                 setError("Search is currently unavailable. API_KEY is not configured.");
@@ -104,7 +89,7 @@ const SearchResultsPage: React.FC = () => {
         };
 
         performSearch();
-    }, [query, products, isOnline]);
+    }, [query, products]);
 
     return (
         <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
