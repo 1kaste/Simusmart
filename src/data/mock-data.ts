@@ -1,5 +1,5 @@
 
-import { Icons } from '../components/icons';
+import { Icons } from '../../components/icons';
 
 export interface Product {
   id: string;
