@@ -1,10 +1,5 @@
-import { Icons } from '../components/icons';
 
-export interface Category {
-  id: string;
-  name: string;
-  imageUrl: string;
-}
+import { Icons } from '../components/icons';
 
 export interface Product {
   id: string;
@@ -12,6 +7,21 @@ export interface Product {
   price: number;
   imageUrl: string;
   category: string;
+  stock: number; // Total stock. For products with colors, this is the sum of stock of all colors.
+  specs?: string; // Markdown-supported text for specs, features, info
+  colors?: { name: string; hex: string; stock: number }[];
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  color?: string; // e.g., 'Midnight Black'
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  imageUrl: string;
 }
 
 export interface Order {
@@ -21,6 +31,7 @@ export interface Order {
   status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
   total: number;
   itemCount: number;
+  items: CartItem[];
   customerAddress: string;
   customerPhone: string;
   paymentMethod: string;
@@ -74,23 +85,95 @@ export const CATEGORIES_DATA: Category[] = [
 ];
 
 export let PRODUCTS_DATA: Product[] = [
-  { id: 'prod1', name: 'AuraPhone X', price: 139999, imageUrl: 'https://picsum.photos/seed/phone1/400/600', category: 'Smartphones' },
-  { id: 'prod2', name: 'Zenith Laptop Pro', price: 250000, imageUrl: 'https://picsum.photos/seed/laptop1/400/600', category: 'Laptops' },
-  { id: 'prod3', name: 'ChronoWatch 2', price: 45000, imageUrl: 'https://picsum.photos/seed/watch1/400/600', category: 'Watches' },
-  { id: 'prod4', name: 'EchoBuds Pro', price: 24999, imageUrl: 'https://picsum.photos/seed/audio1/400/600', category: 'Audio' },
-  { id: 'prod5', name: 'VisionCam 4K', price: 89999, imageUrl: 'https://picsum.photos/seed/camera1/400/600', category: 'Cameras' },
-  { id: 'prod6', name: 'PowerBank Ultra', price: 8900, imageUrl: 'https://picsum.photos/seed/acc1/400/600', category: 'Accessories' },
-  { id: 'prod7', name: 'NovaPhone 12', price: 99999, imageUrl: 'https://picsum.photos/seed/phone2/400/600', category: 'Smartphones' },
-  { id: 'prod8', name: 'AirBook Slim', price: 165000, imageUrl: 'https://picsum.photos/seed/laptop2/400/600', category: 'Laptops' },
+  { 
+    id: 'prod1', name: 'AuraPhone X', price: 139999, imageUrl: 'https://picsum.photos/seed/phone1/400/600', category: 'Smartphones', 
+    stock: 25,
+    specs: `
+### Key Features
+- **Display:** 6.7" Super Retina XDR
+- **Processor:** A18 Bionic Chip
+- **Camera:** Triple 48MP camera system
+- **Battery:** All-day battery life
+- **Storage:** 256GB / 512GB / 1TB
+    `,
+    colors: [
+        { name: 'Deep Purple', hex: '#5E5C6C', stock: 10 },
+        { name: 'Starlight', hex: '#F9F3EE', stock: 15 },
+        { name: 'Midnight', hex: '#1C1C1E', stock: 0 },
+    ]
+  },
+  { 
+    id: 'prod2', name: 'Zenith Laptop Pro', price: 250000, imageUrl: 'https://picsum.photos/seed/laptop1/400/600', category: 'Laptops', 
+    stock: 8,
+    specs: `
+### Performance
+- **Processor:** M4 Pro Chip
+- **Memory:** 18GB Unified Memory
+- **Storage:** 1TB SSD
+- **Display:** 14-inch Liquid Retina XDR display
+    `
+  },
+  { 
+    id: 'prod3', name: 'ChronoWatch 2', price: 45000, imageUrl: 'https://picsum.photos/seed/watch1/400/600', category: 'Watches', 
+    stock: 25,
+    colors: [
+        { name: 'Silver', hex: '#C0C0C0', stock: 15 },
+        { name: 'Graphite', hex: '#555555', stock: 10 },
+    ]
+  },
+  { id: 'prod4', name: 'EchoBuds Pro', price: 24999, imageUrl: 'https://picsum.photos/seed/audio1/400/600', category: 'Audio', stock: 40 },
+  { 
+    id: 'prod5', name: 'VisionCam 4K', price: 89999, imageUrl: 'https://picsum.photos/seed/camera1/400/600', category: 'Cameras', 
+    stock: 12,
+    specs: `
+- 4K Video at 60fps
+- 24MP Photos
+- Waterproof up to 10m
+- 3-axis stabilization
+    `
+  },
+  { id: 'prod6', name: 'PowerBank Ultra', price: 8900, imageUrl: 'https://picsum.photos/seed/acc1/400/600', category: 'Accessories', stock: 50 },
+  { id: 'prod7', name: 'NovaPhone 12', price: 99999, imageUrl: 'https://picsum.photos/seed/phone2/400/600', category: 'Smartphones', stock: 22 },
+  { id: 'prod8', name: 'AirBook Slim', price: 165000, imageUrl: 'https://picsum.photos/seed/laptop2/400/600', category: 'Laptops', stock: 0 },
 ];
 
 export const ORDERS_DATA: Order[] = [
-  { id: 'ORD001', customerName: 'Alice Johnson', date: '2024-05-20', status: 'Shipped', total: 148899, itemCount: 2, customerAddress: '456 Oginga Odinga St, Kisumu', customerPhone: '+254712345678', paymentMethod: 'Card', paymentStatus: 'Paid', paymentDetails: 'Paid via Card.' },
-  { id: 'ORD002', customerName: 'Bob Williams', date: '2024-05-19', status: 'Delivered', total: 45000, itemCount: 1, customerAddress: '789 Moi Avenue, Mombasa', customerPhone: '+254722345678', paymentMethod: 'M-Pesa', paymentStatus: 'Paid', paymentDetails: 'RFE45KL98P Confirmed. Ksh45,000.00 sent to SimuSmart for order ORD002 on 19/05/2024.'},
-  { id: 'ORD003', customerName: 'Charlie Brown', date: '2024-05-21', status: 'Pending', total: 8900, itemCount: 1, customerAddress: '101 Kimathi St, Nyeri', customerPhone: '+254733345678', paymentMethod: 'Payment on Delivery', paymentStatus: 'Unpaid' },
-  { id: 'ORD004', customerName: 'Diana Miller', date: '2024-05-18', status: 'Delivered', total: 24999, itemCount: 1, customerAddress: '222 Kenyatta Ave, Nakuru', customerPhone: '+254744345678', paymentMethod: 'Card', paymentStatus: 'Paid', paymentDetails: 'Paid via Card.' },
-  { id: 'ORD005', customerName: 'Ethan Davis', date: '2024-05-21', status: 'Pending', total: 389999, itemCount: 2, customerAddress: '333 Digo Rd, Malindi', customerPhone: '+254755345678', paymentMethod: 'M-Pesa', paymentStatus: 'Paid', paymentDetails: 'RGE99MN01X Confirmed. Ksh389,999.00 sent to SimuSmart for order ORD005 on 21/05/2024.' },
-  { id: 'ORD006', customerName: 'Fiona Garcia', date: '2024-05-20', status: 'Cancelled', total: 99999, itemCount: 1, customerAddress: '444 Eldoret-Iten Rd, Eldoret', customerPhone: '+254766345678', paymentMethod: 'Card', paymentStatus: 'Paid' },
+  { 
+    id: 'ORD001', customerName: 'Alice Johnson', date: '2024-05-20', status: 'Shipped', total: 148899, itemCount: 2, 
+    items: [
+        { product: PRODUCTS_DATA[0], quantity: 1, color: 'Deep Purple' },
+        { product: PRODUCTS_DATA[5], quantity: 1 }
+    ],
+    customerAddress: '456 Oginga Odinga St, Kisumu', customerPhone: '+254712345678', paymentMethod: 'Card', paymentStatus: 'Paid', paymentDetails: 'Paid via Card.' 
+  },
+  { 
+    id: 'ORD002', customerName: 'Bob Williams', date: '2024-05-19', status: 'Delivered', total: 45000, itemCount: 1,
+    items: [ { product: PRODUCTS_DATA[2], quantity: 1, color: 'Graphite' } ],
+    customerAddress: '789 Moi Avenue, Mombasa', customerPhone: '+254722345678', paymentMethod: 'M-Pesa', paymentStatus: 'Paid', paymentDetails: 'RFE45KL98P Confirmed. Ksh45,000.00 sent to SimuSmart for order ORD002 on 19/05/2024.'
+  },
+  { 
+    id: 'ORD003', customerName: 'Charlie Brown', date: '2024-05-21', status: 'Pending', total: 8900, itemCount: 1, 
+    items: [ { product: PRODUCTS_DATA[5], quantity: 1 } ],
+    customerAddress: '101 Kimathi St, Nyeri', customerPhone: '+254733345678', paymentMethod: 'Payment on Delivery', paymentStatus: 'Unpaid' 
+  },
+  { 
+    id: 'ORD004', customerName: 'Diana Miller', date: '2024-05-18', status: 'Delivered', total: 24999, itemCount: 1, 
+    items: [ { product: PRODUCTS_DATA[3], quantity: 1 } ],
+    customerAddress: '222 Kenyatta Ave, Nakuru', customerPhone: '+254744345678', paymentMethod: 'Card', paymentStatus: 'Paid', paymentDetails: 'Paid via Card.' 
+  },
+  { 
+    id: 'ORD005', customerName: 'Ethan Davis', date: '2024-05-21', status: 'Pending', total: 389999, itemCount: 2, 
+    items: [
+        { product: PRODUCTS_DATA[0], quantity: 1, color: 'Starlight' },
+        { product: PRODUCTS_DATA[1], quantity: 1 }
+    ],
+    customerAddress: '333 Digo Rd, Malindi', customerPhone: '+254755345678', paymentMethod: 'M-Pesa', paymentStatus: 'Paid', paymentDetails: 'RGE99MN01X Confirmed. Ksh389,999.00 sent to SimuSmart for order ORD005 on 21/05/2024.' 
+  },
+  { 
+    id: 'ORD006', customerName: 'Fiona Garcia', date: '2024-05-20', status: 'Cancelled', total: 99999, itemCount: 1,
+    items: [ { product: PRODUCTS_DATA[6], quantity: 1 } ],
+    customerAddress: '444 Eldoret-Iten Rd, Eldoret', customerPhone: '+254766345678', paymentMethod: 'Card', paymentStatus: 'Paid' 
+  },
 ];
 
 export const STORE_SETTINGS_DATA: StoreSettings = {
