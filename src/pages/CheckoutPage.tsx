@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../src/contexts/CartContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../src/contexts/DataContext';
 import { Order, PaymentMethod } from '../data/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/Card';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../src/contexts/AuthContext';
 import { Icons } from '../components/icons';
 
 const VisaForm = () => {
@@ -91,7 +92,7 @@ const CheckoutPage: React.FC = () => {
     }
 
     const productLines = cartItems.map(item => 
-        `- ${item.product.name} (Qty: ${item.quantity}) - Ksh ${(item.product.price * item.quantity).toLocaleString()}`
+        `- ${item.product.name}${item.color ? ` (${item.color})` : ''} (Qty: ${item.quantity}) - Ksh ${(item.product.price * item.quantity).toLocaleString()}`
     ).join('\n');
 
     const message = `Hello ${settings.shopName}!\n\nI would like to place an order for the following items:\n\n${productLines}\n\n*Total: Ksh ${totalPrice.toLocaleString()}*\n\nPlease advise on payment and delivery. Thank you.`;
@@ -129,6 +130,7 @@ const CheckoutPage: React.FC = () => {
         status: 'Pending',
         total: totalPrice,
         itemCount: cartCount,
+        items: cartItems,
         customerAddress: `${address}, ${city}`,
         customerPhone: phone,
         paymentMethod: selectedMethod?.name || 'Unknown',
@@ -160,8 +162,8 @@ const CheckoutPage: React.FC = () => {
                   <h3 className="font-semibold mb-2 text-primary-dark dark:text-white">Your Cart Summary</h3>
                   <div className="space-y-2 border-t border-b dark:border-gray-700 py-4 my-2 max-h-64 overflow-y-auto">
                       {cartItems.map(item => (
-                          <div key={item.product.id} className="flex justify-between items-center text-sm">
-                              <p>{item.product.name} <span className="text-gray-500 dark:text-gray-400">x {item.quantity}</span></p>
+                          <div key={`${item.product.id}-${item.color}`} className="flex justify-between items-center text-sm">
+                              <p>{item.product.name} {item.color ? `(${item.color})` : ''} <span className="text-gray-500 dark:text-gray-400">x {item.quantity}</span></p>
                               <p className="font-medium">Ksh {(item.product.price * item.quantity).toLocaleString()}</p>
                           </div>
                       ))}
@@ -246,12 +248,14 @@ const CheckoutPage: React.FC = () => {
             <CardContent>
               <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
                 {cartItems.map(item => (
-                  <div key={item.product.id} className="flex justify-between items-center">
+                  <div key={`${item.product.id}-${item.color}`} className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <img src={item.product.imageUrl} alt={item.product.name} className="w-16 h-16 rounded-md object-cover" />
                       <div>
                         <p className="font-semibold">{item.product.name}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {item.color ? `${item.color}, ` : ''}Qty: {item.quantity}
+                        </p>
                       </div>
                     </div>
                     <p className="font-medium">Ksh {(item.product.price * item.quantity).toLocaleString()}</p>
