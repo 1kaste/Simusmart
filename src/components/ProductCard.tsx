@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { marked } from 'marked';
-import { Product } from '../data/mock-data';
+import { Product } from '../src/data/mock-data';
 import { Card, CardContent, CardFooter } from './ui/Card';
 import Button from './ui/Button';
 import { useCart } from '../src/contexts/CartContext';
