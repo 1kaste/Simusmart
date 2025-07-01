@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { Product, Category, Order, StoreSettings, PRODUCTS_DATA, CATEGORIES_DATA, ORDERS_DATA, STORE_SETTINGS_DATA } from '../data/mock-data';
+import { Product, Category, Order, StoreSettings, PRODUCTS_DATA, CATEGORIES_DATA, ORDERS_DATA, STORE_SETTINGS_DATA, CartItem } from '../../data/mock-data';
 
 interface DataContextType {
   products: Product[];
@@ -83,7 +84,34 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const addOrder = (order: Order) => {
+    // Add order to list
     setOrders(prev => [order, ...prev]);
+    
+    // Decrement stock for each item in the order
+    setProducts(prevProducts => {
+        const productsMap = new Map(prevProducts.map(p => [p.id, { ...p, colors: p.colors ? [...p.colors.map(c => ({...c}))] : undefined }]));
+
+        order.items.forEach((item: CartItem) => {
+            const product = productsMap.get(item.product.id);
+            if (product) {
+                // Decrement stock from the specific color variation if it exists
+                if (item.color && product.colors) {
+                    const colorIndex = product.colors.findIndex(c => c.name === item.color);
+                    if (colorIndex !== -1) {
+                        const newStock = product.colors[colorIndex].stock - item.quantity;
+                        product.colors[colorIndex].stock = newStock >= 0 ? newStock : 0;
+                    }
+                }
+                // Decrement total stock for the product
+                const newTotalStock = product.stock - item.quantity;
+                product.stock = newTotalStock >= 0 ? newTotalStock : 0;
+                
+                productsMap.set(product.id, product);
+            }
+        });
+
+        return Array.from(productsMap.values());
+    });
   };
 
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
