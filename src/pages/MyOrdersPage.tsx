@@ -1,8 +1,11 @@
+
+
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useData } from '../contexts/DataContext';
-import { Order } from '../data/mock-data';
+import { useAuth } from '../src/contexts/AuthContext';
+import { useData } from '../src/contexts/DataContext';
+import { Order } from '../src/data/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Icons } from '../components/icons';
