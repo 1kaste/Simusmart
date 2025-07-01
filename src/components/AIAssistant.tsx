@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { GoogleGenAI, Chat } from "@google/genai";
 import { marked } from 'marked';
 
-import { useData } from '../contexts/DataContext';
+import { useData } from '../src/contexts/DataContext';
 import { Icons } from './icons';
 import Button from './ui/Button';
 import Input from './ui/Input';
@@ -21,23 +21,9 @@ const AIAssistant: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [chat, setChat] = useState<Chat | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [isOnline, setIsOnline] = useState(navigator.onLine);
 
     const { products, settings } = useData();
     const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
 
     useEffect(() => {
         // Automatically scroll to the bottom of the chat
@@ -47,24 +33,26 @@ const AIAssistant: React.FC = () => {
     useEffect(() => {
         if (!isOpen || chat) return; // Only initialize once when opened
 
-        if (!isOnline) {
-             setError("The AI assistant is unavailable while you're offline.");
-             return;
-        }
-
         if (!process.env.API_KEY) {
             setError("The AI assistant is offline. API_KEY is missing.");
             return;
         }
         
-        setError(null);
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const productList = products.map(p => `- ${p.name} (Category: ${p.category}, Price: Ksh ${p.price})`).join('\n');
+            const productList = products.map(p => {
+                const colorInfo = p.colors && p.colors.length > 0
+                    ? `Available colors are: ${p.colors.filter(c => c.stock > 0).map(c => c.name).join(', ')}.`
+                    : "This product doesn't have specific color options.";
+                const specsInfo = p.specs ? `It has the following features: ${p.specs.replace(/###/g, '').replace(/\n/g, ' ')}` : '';
+                return `- ${p.name} (Category: ${p.category}, Price: Ksh ${p.price}). ${colorInfo} ${specsInfo}`;
+            }).join('\n');
+            
             const systemInstruction = `You are a friendly and helpful shopping assistant for an online store called "${settings.shopName}".
-Your goal is to help users find products and answer their questions.
+Your goal is to help users find products and answer their questions based on the provided list.
 Be concise and conversational.
-Use the following product list to answer questions about inventory. Do not invent products.
+NEVER mention stock numbers or quantity. Only mention if a color is available or out of stock.
+Use the following product list to answer questions. Do not invent products or features.
 Product List:
 ${productList}
 
@@ -81,11 +69,11 @@ If you can't answer a question, politely say so and suggest they contact support
             console.error("Failed to initialize AI Chat:", e);
             setError("Could not connect to the AI assistant.");
         }
-    }, [isOpen, chat, products, settings, isOnline]);
+    }, [isOpen, chat, products, settings]);
 
     const handleSendMessage = async (e: FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || isLoading || !chat || !isOnline) return;
+        if (!input.trim() || isLoading || !chat) return;
 
         const userInput: Message = { role: 'user', content: input };
         setMessages(prev => [...prev, userInput]);
@@ -141,7 +129,7 @@ If you can't answer a question, politely say so and suggest they contact support
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div
-                                        className={`max-w-xs lg:max-w-sm rounded-lg px-3 py-2 text-sm ${
+                                        className={`prose prose-sm dark:prose-invert max-w-xs lg:max-w-sm rounded-lg px-3 py-2 ${
                                             msg.role === 'user'
                                                 ? 'bg-accent-teal text-white'
                                                 : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
@@ -159,18 +147,18 @@ If you can't answer a question, politely say so and suggest they contact support
                                     </div>
                                 </div>
                             )}
-                            {error && <p className="text-red-500 text-sm p-2 bg-red-100 dark:bg-red-900/40 rounded-md">{error}</p>}
+                            {error && <p className="text-red-500 text-sm">{error}</p>}
                             <div ref={messagesEndRef} />
                         </div>
                         <form onSubmit={handleSendMessage} className="flex items-center p-3 border-t dark:border-gray-700 gap-2">
                             <Input
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder={isOnline ? "Ask about products..." : "AI Assistant is offline"}
+                                placeholder="Ask about products..."
                                 className="flex-1"
-                                disabled={isLoading || !!error || !isOnline}
+                                disabled={isLoading || !!error}
                             />
-                            <Button type="submit" size="icon" variant="accent" disabled={isLoading || !input.trim() || !isOnline}>
+                            <Button type="submit" size="icon" variant="accent" disabled={isLoading || !input.trim()}>
                                 <Icons.Send className="h-5 w-5" />
                             </Button>
                         </form>
