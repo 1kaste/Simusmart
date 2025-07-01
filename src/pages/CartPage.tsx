@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
+import { useCart } from '../src/contexts/CartContext';
 import Button from '../components/ui/Button';
 import { Icons } from '../components/icons';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
@@ -10,8 +10,8 @@ const CartPage: React.FC = () => {
   const { cartItems, totalPrice, removeFromCart, updateQuantity, cartCount } = useCart();
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
-      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary-dark dark:text-white mb-8">
+    <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-extrabold tracking-tight text-primary-dark dark:text-white mb-8">
         Your Shopping Cart
       </h1>
       {cartItems.length === 0 ? (
@@ -27,33 +27,32 @@ const CartPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map(item => (
-              <Card key={item.product.id} className="p-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                    <img src={item.product.imageUrl} alt={item.product.name} className="w-full sm:w-24 h-40 sm:h-24 object-cover rounded-md" />
-                    <div className="flex-grow mt-4 sm:mt-0 sm:ml-4">
-                      <h3 className="font-semibold text-lg text-primary-dark dark:text-white">{item.product.name}</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Ksh {item.product.price.toLocaleString()}</p>
-                    </div>
-                    <div className="flex items-center gap-2 mt-4 sm:mt-0 sm:ml-4">
-                      <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}>-</Button>
-                      <span className="w-10 text-center font-semibold text-lg">{item.quantity}</span>
-                      <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>+</Button>
-                    </div>
-                    <div className="font-bold text-lg text-primary-dark dark:text-white mt-4 sm:mt-0 sm:ml-6 text-right sm:text-left w-full sm:w-auto">
-                      Ksh {(item.product.price * item.quantity).toLocaleString()}
-                    </div>
-                    <div className="mt-4 sm:mt-0 sm:ml-4 self-end sm:self-center">
-                      <Button size="icon" variant="ghost" onClick={() => removeFromCart(item.product.id)}>
-                        <Icons.Trash2 className="h-5 w-5 text-red-500" />
-                      </Button>
-                    </div>
+              <Card key={`${item.product.id}-${item.color || ''}`} className="flex items-center p-4">
+                <img src={item.product.imageUrl} alt={item.product.name} className="w-24 h-24 object-cover rounded-md" />
+                <div className="flex-grow ml-4">
+                  <h3 className="font-semibold text-lg text-primary-dark dark:text-white">{item.product.name}</h3>
+                  {item.color && <p className="text-sm text-gray-500 dark:text-gray-400">{item.color}</p>}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Ksh {item.product.price.toLocaleString()}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.color)}>-</Button>
+                  <span className="w-10 text-center font-semibold text-lg">{item.quantity}</span>
+                  <Button size="icon" variant="outline" onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.color)}>+</Button>
+                </div>
+                <div className="ml-6">
+                  <p className="font-bold text-lg text-primary-dark dark:text-white">Ksh {(item.product.price * item.quantity).toLocaleString()}</p>
+                </div>
+                 <div className="ml-6">
+                  <Button size="icon" variant="ghost" onClick={() => removeFromCart(item.product.id, item.color)}>
+                    <Icons.Trash2 className="h-5 w-5 text-red-500" />
+                  </Button>
                 </div>
               </Card>
             ))}
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="sticky top-24">
+            <Card>
               <CardHeader>
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
